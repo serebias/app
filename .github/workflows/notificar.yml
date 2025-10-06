@@ -1,0 +1,36 @@
+name: Notificar Vencimentos (Browser Simulation)
+
+on:
+  schedule:
+    # ajusta cron abaixo conforme desejado (UTC). Ex.: daily at 05:00 UTC
+    - cron: '0 5 * * *'
+  workflow_dispatch: # permite executar manualmente
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run browser fetch (Playwright)
+        env:
+          DEBUG: 'pw:browser*'
+        run: npm run fetch
+
+      - name: Upload final_page.html as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: final_page
+          path: final_page.html
